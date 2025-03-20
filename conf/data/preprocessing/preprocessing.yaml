@@ -9,3 +9,5 @@ f_max: 8000.0
 
 top_db: 60.0
 noise_offset_db: -10.0
+
+n_target_time_frames: 1024

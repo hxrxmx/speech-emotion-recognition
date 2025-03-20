@@ -7,7 +7,7 @@ from torch import nn
 from torch.utils.data import DataLoader, Dataset
 from torchaudio.transforms import MelSpectrogram
 
-import speech_emotion_recognition.audio_preprocessing as ap
+import speech_emotion_recognition.preprocessing as ap
 
 
 class CREMADataset(Dataset):
@@ -63,6 +63,7 @@ class CREMADataModule(pl.LightningDataModule):
             ap.MelSpecPreprocessingPipeline(
                 top_db=config.data.preprocessing.top_db,
                 noise_offset_db=config.data.preprocessing.noise_offset_db,
+                n_target_time_frames=config.data.preprocessing.n_target_time_frames,
             ),
         )
 
