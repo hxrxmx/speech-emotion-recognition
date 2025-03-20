@@ -14,6 +14,10 @@ __pycache__/
 
 # dataset folder
 data/
+!conf/data/
+
+# hydra logs
+outputs/
 
 # jupiter notebooks
 notebooks/
