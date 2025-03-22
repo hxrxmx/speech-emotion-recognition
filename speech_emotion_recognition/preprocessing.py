@@ -9,7 +9,7 @@ class WaveformPreprocessingPipeline(torch.nn.Module):
         self.sample_rate = sample_rate
         self.length = int(sample_rate * max_sample_time)
 
-    def _resamaple(self, waveform, orig_rate):
+    def _resample(self, waveform, orig_rate):
         resampler = Resample(orig_freq=orig_rate, new_freq=self.sample_rate)
         return resampler(waveform)
 
@@ -25,7 +25,7 @@ class WaveformPreprocessingPipeline(torch.nn.Module):
         return waveform
 
     def forward(self, waveform_sr):
-        waveform = self._resamaple(*waveform_sr)
+        waveform = self._resample(*waveform_sr)
         waveform = self._normalizing_waveform(waveform)
         waveform = self._pad_or_trim(waveform)
         return waveform
@@ -48,7 +48,7 @@ class MelSpecPreprocessingPipeline(torch.nn.Module):
         return mel_spec
 
     def _spectrogram_normalization(self, mel_spec):
-        return mel_spec / torch.std(mel_spec + 1e-6)
+        return mel_spec / (mel_spec.std() + 1e-6)
 
     def _resize_mel_spec_length(self, mel_spec):
         mel_spec_resized = F.interpolate(
