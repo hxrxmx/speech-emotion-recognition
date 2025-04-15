@@ -3,12 +3,25 @@ import random
 import shutil
 from collections import defaultdict
 
+import torch
+import torchaudio
+
 DATA_DIR = "data/CREMA-D/AudioWAV"
 SPLIT_DIR = "data/CREMA-D-split"
 TRAIN_RATIO = 0.8
 VAL_RATIO = 0.1
 TEST_RATIO = 0.1
-SEED = 4423
+SEED = 17
+MIN_SAMPLE_TIME = 0.2
+
+
+def whole(file):
+    waveform, sr = torchaudio.load(os.path.join(DATA_DIR, file))
+    return (
+        True
+        if waveform.shape[1] / sr > MIN_SAMPLE_TIME and not torch.isnan(waveform).any()
+        else False
+    )
 
 
 def split_dataset():
@@ -19,7 +32,7 @@ def split_dataset():
 
     class_dict = defaultdict(list)
 
-    files = [f for f in os.listdir(DATA_DIR) if f.endswith(".wav")]
+    files = [f for f in os.listdir(DATA_DIR) if (f.endswith(".wav") and whole(f))]
     for f in files:
         class_name = f.split("_")[2]
         class_dict[class_name].append(f)
@@ -47,7 +60,7 @@ def split_dataset():
                     os.path.join(SPLIT_DIR, split, class_name, f),
                 )
 
-    print("Dataset splitted with stratifications:;)")
+    print("Dataset splitted:;)")
 
 
 if __name__ == "__main__":

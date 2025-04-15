@@ -1,13 +1,16 @@
 import os
 
 import lightning as pl
-import torch
 import torchaudio
 from torch import nn
 from torch.utils.data import DataLoader, Dataset
 from torchaudio.transforms import MelSpectrogram
 
-import speech_emotion_recognition.preprocessing as ap
+from speech_emotion_recognition.preprocessing import (
+    AudioAugmentationsPipeline,
+    MelSpecPreprocessingPipeline,
+    WaveformPreprocessingPipeline,
+)
 
 
 class CREMADataset(Dataset):
@@ -30,55 +33,96 @@ class CREMADataset(Dataset):
 
     def __getitem__(self, index):
         file_path, label = self.samples[index]
-        waveform, sample_rate = torchaudio.load(file_path)
-        sample_rate = torch.tensor(sample_rate)
-        label = torch.tensor(label)
+        waveform, sr = torchaudio.load(file_path)
 
         if self.transform:
-            audio_item = self.transform((waveform, sample_rate))
+            tensor = self.transform((waveform, sr))
         else:
-            audio_item = waveform
+            tensor = waveform
 
-        return audio_item, label
+        return tensor, label
 
 
 class CREMADataModule(pl.LightningDataModule):
     def __init__(self, config=None):
         super().__init__()
-        self.config = config
         self.save_hyperparameters()
-        self.transform = nn.Sequential(
-            ap.WaveformPreprocessingPipeline(
-                sample_rate=config.data.preprocessing.sample_rate,
-                max_sample_time=config.data.preprocessing.max_sample_time,
-            ),
-            MelSpectrogram(
-                sample_rate=config.data.preprocessing.sample_rate,
-                n_fft=config.data.preprocessing.n_fft,
-                hop_length=config.data.preprocessing.hop_length,
-                f_min=config.data.preprocessing.f_min,
-                f_max=config.data.preprocessing.f_max,
-                n_mels=config.data.preprocessing.n_mels,
-            ),
-            ap.MelSpecPreprocessingPipeline(
-                top_db=config.data.preprocessing.top_db,
-                noise_offset_db=config.data.preprocessing.noise_offset_db,
-                n_target_time_frames=config.data.preprocessing.n_target_time_frames,
-            ),
+
+        self.config = config
+        self._transforms_setup()
+
+    def _transforms_setup(self):
+        aug_transform = AudioAugmentationsPipeline(
+            sample_rate=self.config.data.preprocessing.sample_rate,
+            min_shift=self.config.data.augmentations.min_shift,
+            max_shift=self.config.data.augmentations.max_shift,
+            min_pitch_shift_semitones=self.config.data.augmentations.min_pitch_shift_st,
+            max_pitch_shift_semitones=self.config.data.augmentations.max_pitch_shift_st,
+            min_gain_db=self.config.data.augmentations.min_gain_db,
+            max_gain_db=self.config.data.augmentations.max_gain_db,
+            lp_min_cutoff_freq=self.config.data.augmentations.lp_min_cutoff_freq,
+            lp_max_cutoff_freq=self.config.data.preprocessing.f_max,
+            hp_min_cutoff_freq=self.config.data.preprocessing.f_min,
+            hp_max_cutoff_freq=self.config.data.augmentations.hp_max_cutoff_freq,
+        )
+
+        train_waveform_transform = WaveformPreprocessingPipeline(
+            sample_rate=self.config.data.preprocessing.sample_rate,
+            max_sample_time=self.config.data.preprocessing.max_sample_time,
+            aug_transform=aug_transform,
+        )
+
+        val_waveform_transform = WaveformPreprocessingPipeline(
+            sample_rate=self.config.data.preprocessing.sample_rate,
+            max_sample_time=self.config.data.preprocessing.max_sample_time,
+            aug_transform=None,
+        )
+
+        mel_spec = MelSpectrogram(
+            sample_rate=self.config.data.preprocessing.sample_rate,
+            n_fft=self.config.data.preprocessing.n_fft,
+            hop_length=self.config.data.preprocessing.hop_length,
+            f_min=self.config.data.preprocessing.f_min,
+            f_max=self.config.data.preprocessing.f_max,
+            n_mels=self.config.data.preprocessing.n_mels,
+        )
+
+        mel_spec_transform = MelSpecPreprocessingPipeline(
+            top_db=self.config.data.preprocessing.top_db,
+            noise_offset_db=self.config.data.preprocessing.noise_offset_db,
+            n_target_time_frames=self.config.data.preprocessing.n_target_time_frames,
+        )
+
+        self.train_transform = nn.Sequential(
+            train_waveform_transform,
+            mel_spec,
+            mel_spec_transform,
+        )
+
+        self.val_transform = nn.Sequential(
+            val_waveform_transform,
+            mel_spec,
+            mel_spec_transform,
+        )
+
+        self.test_transform = nn.Sequential(
+            val_waveform_transform,
+            mel_spec,
+            mel_spec_transform,
         )
 
     def setup(self, stage=None):
         self.train_dataset = CREMADataset(
-            self.config.data.data_loading.train_data_path,
-            self.transform,
-        )
-        self.test_dataset = CREMADataset(
-            self.config.data.data_loading.test_data_path,
-            self.transform,
+            data_dir=self.config.data.data_loading.train_data_path,
+            transform=self.train_transform,
         )
         self.val_dataset = CREMADataset(
-            self.config.data.data_loading.val_data_path,
-            self.transform,
+            data_dir=self.config.data.data_loading.val_data_path,
+            transform=self.val_transform,
+        )
+        self.test_dataset = CREMADataset(
+            data_dir=self.config.data.data_loading.test_data_path,
+            transform=self.test_transform,
         )
 
     def train_dataloader(self):
@@ -87,14 +131,16 @@ class CREMADataModule(pl.LightningDataModule):
             batch_size=self.config.training.batch_size,
             shuffle=True,
             num_workers=self.config.training.num_workers,
+            persistent_workers=True,
         )
 
     def val_dataloader(self):
         return DataLoader(
             self.val_dataset,
             batch_size=self.config.training.batch_size,
-            shuffle=False,
+            shuffle=True,
             num_workers=self.config.training.num_workers,
+            persistent_workers=True,
         )
 
     def test_dataloader(self):
@@ -103,4 +149,5 @@ class CREMADataModule(pl.LightningDataModule):
             batch_size=self.config.training.batch_size,
             shuffle=False,
             num_workers=self.config.training.num_workers,
+            persistent_workers=True,
         )

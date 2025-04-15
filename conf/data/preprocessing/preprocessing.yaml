@@ -1,13 +1,14 @@
 sample_rate: 16000
 
 n_mels: 256
-max_sample_time: 5.0
-n_fft: 500
-hop_length: 100
-f_min: 50.0
+max_sample_time: 4.0
+n_fft: 1024
+win_length: 1024
+hop_length: 64
+f_min: 60.0
 f_max: 8000.0
 
 top_db: 60.0
-noise_offset_db: -10.0
+noise_offset_db: -35.0
 
 n_target_time_frames: 1024

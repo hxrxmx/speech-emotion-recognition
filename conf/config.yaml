@@ -1,6 +1,8 @@
 defaults:
   - data/preprocessing: preprocessing
   - data/data_loading: data_loading
+  - data/augmentations: augmentations
   - model: model
   - inference: inference
   - training: training
+  - logging: logging

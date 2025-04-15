@@ -1,0 +1,5 @@
+label: wandb
+
+project: speech_emotion_recognition
+name: cnn_wth_trnsfrmr_model
+save_dir: "."
