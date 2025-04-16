@@ -1,7 +1,14 @@
 import lightning as L
 import torch
+from lightning.pytorch.loggers import WandbLogger
 from torch import nn
-from torchmetrics.classification import MulticlassAccuracy
+from torchmetrics.classification import (
+    MulticlassAccuracy,
+    MulticlassConfusionMatrix,
+    MulticlassF1Score,
+)
+
+import wandb
 
 
 class EmotionSpeechClassifier(L.LightningModule):
@@ -11,26 +18,30 @@ class EmotionSpeechClassifier(L.LightningModule):
         self.config = config
 
         self.model = model
-        self.lr = config.training.lr
 
-        self.acc = MulticlassAccuracy(config.model.num_classes)
+        self.val_preds = []
+        self.val_targets = []
 
         weights = torch.tensor(list(config.model.weights.values()), dtype=torch.float)
-        self.loss_fn = nn.CrossEntropyLoss(weight=weights)
+        self.loss = nn.CrossEntropyLoss(weight=weights)
+
+        self.acc = MulticlassAccuracy(config.model.num_classes)
+        self.f1 = MulticlassF1Score(num_classes=config.model.num_classes)
+        self.conf_mat = MulticlassConfusionMatrix(num_classes=config.model.num_classes)
 
     def forward(self, inp):
         return self.model(inp)
 
     def configure_optimizers(self):
-        opt = torch.optim.Adam(self.parameters(), lr=self.lr)
+        optimizer = torch.optim.Adam(self.parameters(), lr=self.config.training.lr)
         sheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
-            opt,
-            "min",
+            optimizer,
+            mode="min",
             factor=self.config.training.sheduler.factor,
             patience=self.config.training.sheduler.patience,
         )
         return {
-            "optimizer": opt,
+            "optimizer": optimizer,
             "lr_scheduler": {
                 "scheduler": sheduler,
                 "monitor": "val_loss",
@@ -39,42 +50,68 @@ class EmotionSpeechClassifier(L.LightningModule):
 
     def training_step(self, batch, batch_idx, dataloader_idx=0):
         data, targets = batch
-        predictions = self(data)
+        predictions_logits = self(data)
 
-        loss = self.loss_fn(predictions, targets)
-        acc = self.acc(predictions, targets)
+        loss = self.loss(predictions_logits, targets)
+        acc = self.acc(predictions_logits, targets)
 
         lr = self.trainer.optimizers[0].param_groups[0]["lr"]
 
-        self.log("lr", lr, prog_bar=True, on_step=True)
+        self.log("lr", lr, prog_bar=True, on_epoch=True)
         self.log("train_loss", loss, prog_bar=True, on_step=True)
         self.log("train_acc", acc, prog_bar=True, on_step=True)
         return loss
 
     def validation_step(self, batch, batch_idx, dataloader_idx=0):
         data, targets = batch
-        predictions = self(data)
+        predictions_logits = self(data)
 
-        loss = self.loss_fn(predictions, targets)
-        acc = self.acc(predictions, targets)
+        loss = self.loss(predictions_logits, targets)
+        acc = self.acc(predictions_logits, targets)
+        f1 = self.f1(predictions_logits, targets)
 
-        self.log("val_loss", loss, prog_bar=True, on_epoch=True)
-        self.log("val_acc", acc, prog_bar=True, on_epoch=True)
-        return {"val_loss": loss, "val_acc": acc}
+        self.log("val_loss", loss, on_epoch=True, prog_bar=True)
+        self.log("val_acc", acc, on_epoch=True, prog_bar=True)
+        self.log("val_f1", f1, on_epoch=True, prog_bar=True)
+
+        preds = torch.argmax(predictions_logits, dim=1)
+        self.val_preds.append(preds.cpu())
+        self.val_targets.append(targets.cpu())
+        return loss
+
+    def on_validation_epoch_end(self):
+        all_preds = torch.cat(self.val_preds).numpy()
+        all_targets = torch.cat(self.val_targets).numpy()
+
+        class_labels = [str(i) for i in range(self.config.model.num_classes)]
+
+        if isinstance(self.logger, WandbLogger):
+            self.logger.experiment.log(
+                {
+                    "val_conf_mat": wandb.plot.confusion_matrix(
+                        preds=all_preds, y_true=all_targets, class_names=class_labels
+                    ),
+                }
+            )
+
+        self.val_preds.clear()
+        self.val_targets.clear()
 
     def test_step(self, batch, batch_idx, dataloader_idx=0):
         data, targets = batch
         predictions = self(data)
 
-        loss = self.loss_fn(predictions, targets)
+        loss = self.loss(predictions, targets)
         acc = self.acc(predictions, targets)
+        f1 = self.f1(predictions, targets)
 
         self.log("test_acc", acc)
+        self.log("test_f1", f1)
         self.log("test_loss", loss)
-        return acc
+        return loss
 
     def predict_step(self, batch, batch_idx, dataloader_idx=0):
-        data, targets = batch
+        data, _ = batch
         predictions = self(data)
 
         return torch.argmax(predictions, dim=1)

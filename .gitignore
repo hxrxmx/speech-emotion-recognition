@@ -20,6 +20,8 @@ data/
 # hydra logs
 outputs/
 
+saved_models/
+
 # jupiter notebooks
 notebooks/
 
