@@ -1,7 +1,7 @@
 import lightning as L
 import torch
 from lightning.pytorch.loggers import WandbLogger
-from torch import nn
+from loss import FocalLoss
 from torchmetrics.classification import (
     MulticlassAccuracy,
     MulticlassConfusionMatrix,
@@ -23,11 +23,11 @@ class EmotionSpeechClassifier(L.LightningModule):
         self.val_targets = []
 
         weights = torch.tensor(list(config.model.weights.values()), dtype=torch.float)
-        self.loss = nn.CrossEntropyLoss(weight=weights)
+        self.loss = FocalLoss(weight=weights)
 
         self.acc = MulticlassAccuracy(config.model.num_classes)
-        self.f1 = MulticlassF1Score(num_classes=config.model.num_classes)
-        self.conf_mat = MulticlassConfusionMatrix(num_classes=config.model.num_classes)
+        self.f1 = MulticlassF1Score(config.model.num_classes)
+        self.conf_mat = MulticlassConfusionMatrix(config.model.num_classes)
 
     def forward(self, inp):
         return self.model(inp)
@@ -57,9 +57,9 @@ class EmotionSpeechClassifier(L.LightningModule):
 
         lr = self.trainer.optimizers[0].param_groups[0]["lr"]
 
-        self.log("lr", lr, prog_bar=True, on_epoch=True)
-        self.log("train_loss", loss, prog_bar=True, on_step=True)
-        self.log("train_acc", acc, prog_bar=True, on_step=True)
+        self.log("lr", lr, prog_bar=True, on_step=True)
+        self.log("train_loss", loss, prog_bar=True, on_step=False, on_epoch=True)
+        self.log("train_acc", acc, prog_bar=True, on_step=False, on_epoch=True)
         return loss
 
     def validation_step(self, batch, batch_idx, dataloader_idx=0):
@@ -75,13 +75,17 @@ class EmotionSpeechClassifier(L.LightningModule):
         self.log("val_f1", f1, on_epoch=True, prog_bar=True)
 
         preds = torch.argmax(predictions_logits, dim=1)
-        self.val_preds.append(preds.cpu())
-        self.val_targets.append(targets.cpu())
-        return loss
+        self.val_preds.append(preds)
+        self.val_targets.append(targets)
+        return {
+            "val_loss": loss,
+            "val_acc": acc,
+            "val_f1": f1,
+        }
 
     def on_validation_epoch_end(self):
-        all_preds = torch.cat(self.val_preds).numpy()
-        all_targets = torch.cat(self.val_targets).numpy()
+        all_preds = torch.cat(self.val_preds).cpu().numpy()
+        all_targets = torch.cat(self.val_targets).cpu().numpy()
 
         class_labels = [str(i) for i in range(self.config.model.num_classes)]
 
@@ -105,9 +109,9 @@ class EmotionSpeechClassifier(L.LightningModule):
         acc = self.acc(predictions, targets)
         f1 = self.f1(predictions, targets)
 
-        self.log("test_acc", acc)
-        self.log("test_f1", f1)
-        self.log("test_loss", loss)
+        self.log("test_acc", acc, on_epoch=True)
+        self.log("test_f1", f1, on_epoch=True)
+        self.log("test_loss", loss, on_epoch=True)
         return loss
 
     def predict_step(self, batch, batch_idx, dataloader_idx=0):
