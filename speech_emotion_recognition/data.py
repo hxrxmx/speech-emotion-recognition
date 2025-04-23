@@ -148,7 +148,7 @@ class CREMADataModule(pl.LightningDataModule):
         return DataLoader(
             self.test_dataset,
             batch_size=self.config.training.batch_size,
-            shuffle=False,
+            shuffle=True,
             num_workers=self.config.training.num_workers,
             persistent_workers=True,
         )
