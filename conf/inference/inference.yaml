@@ -1,0 +1,1 @@
+ckpt_path: ..\saved_models\cnn_with_transformer\model-epoch=53-val_loss=0.5879-val_acc=0.690.ckpt

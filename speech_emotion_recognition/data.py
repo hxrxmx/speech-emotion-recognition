@@ -82,6 +82,7 @@ class CREMADataModule(pl.LightningDataModule):
             sample_rate=self.config.data.preprocessing.sample_rate,
             n_fft=self.config.data.preprocessing.n_fft,
             hop_length=self.config.data.preprocessing.hop_length,
+            win_length=self.config.data.preprocessing.win_length,
             f_min=self.config.data.preprocessing.f_min,
             f_max=self.config.data.preprocessing.f_max,
             n_mels=self.config.data.preprocessing.n_mels,

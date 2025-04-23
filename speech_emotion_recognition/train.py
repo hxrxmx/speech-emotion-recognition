@@ -28,11 +28,11 @@ def main(config: DictConfig):
 
     callbacks = [
         ModelCheckpoint(
-            dirpath="saved_models/cnn_with_transformer/",
-            monitor="val_loss",
-            mode="min",
+            dirpath="checkpoints/cnn_with_transformer_enc/",
+            monitor="val_acc",
+            mode="max",
             save_top_k=3,
-            filename="model-{epoch:02d}-{val_loss:.4f}",
+            filename="model-{epoch:02d}-{val_loss:.4f}-{val_acc:.3f}",
             save_last=True,
         ),
     ]

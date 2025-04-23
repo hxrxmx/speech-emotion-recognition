@@ -19,9 +19,6 @@ class EmotionSpeechClassifier(L.LightningModule):
 
         self.model = model
 
-        self.val_preds = []
-        self.val_targets = []
-
         weights = torch.tensor(list(config.model.weights.values()), dtype=torch.float)
         self.loss = FocalLoss(weight=weights)
 
@@ -29,8 +26,11 @@ class EmotionSpeechClassifier(L.LightningModule):
         self.f1 = MulticlassF1Score(config.model.num_classes)
         self.conf_mat = MulticlassConfusionMatrix(config.model.num_classes)
 
-    def forward(self, inp):
-        return self.model(inp)
+        self.val_preds = []
+        self.val_targets = []
+
+    def forward(self, tensor):
+        return self.model(tensor)
 
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=self.config.training.lr)
@@ -70,13 +70,14 @@ class EmotionSpeechClassifier(L.LightningModule):
         acc = self.acc(predictions_logits, targets)
         f1 = self.f1(predictions_logits, targets)
 
-        self.log("val_loss", loss, on_epoch=True, prog_bar=True)
-        self.log("val_acc", acc, on_epoch=True, prog_bar=True)
-        self.log("val_f1", f1, on_epoch=True, prog_bar=True)
+        self.log("val_loss", loss, on_step=False, on_epoch=True, prog_bar=True)
+        self.log("val_acc", acc, on_step=False, on_epoch=True, prog_bar=True)
+        self.log("val_f1", f1, on_step=False, on_epoch=True, prog_bar=True)
 
-        preds = torch.argmax(predictions_logits, dim=1)
+        preds = predictions_logits.argmax(dim=1)
         self.val_preds.append(preds)
         self.val_targets.append(targets)
+
         return {
             "val_loss": loss,
             "val_acc": acc,
@@ -109,10 +110,14 @@ class EmotionSpeechClassifier(L.LightningModule):
         acc = self.acc(predictions, targets)
         f1 = self.f1(predictions, targets)
 
-        self.log("test_acc", acc, on_epoch=True)
-        self.log("test_f1", f1, on_epoch=True)
-        self.log("test_loss", loss, on_epoch=True)
-        return loss
+        self.log("test_acc", acc)
+        self.log("test_f1", f1)
+        self.log("test_loss", loss)
+        return {
+            "test_loss": loss,
+            "test_acc": acc,
+            "test_f1": f1,
+        }
 
     def predict_step(self, batch, batch_idx, dataloader_idx=0):
         data, _ = batch
