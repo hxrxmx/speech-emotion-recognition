@@ -1,0 +1,6 @@
+outs:
+- md5: 0875ca05a6d1e94c682b4b714cf91b30.dir
+  size: 605899936
+  nfiles: 7442
+  hash: md5
+  path: CREMA-D-split
