@@ -13,10 +13,6 @@ __pycache__/
 # pre-commit-config
 .ruff_cache/
 
-# dataset folder
-data/
-!conf/data/
-
 # lightning logs
 lightning_logs/
 

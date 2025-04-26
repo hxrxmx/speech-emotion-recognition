@@ -1,0 +1,6 @@
+[core]
+    remote = data
+['remote "data"']
+    url = C:\dvc-storage\ser\data\
+['remote "models"']
+    url = C:\dvc-storage\ser\models\
