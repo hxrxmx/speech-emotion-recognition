@@ -1,12 +1,12 @@
 import hydra
 import lightning as L
-from classifier import AudioClassifier
 from lightning.pytorch.callbacks import ModelCheckpoint
 from lightning.pytorch.loggers import WandbLogger
-from model import EmotionSpeechClassifier
 from omegaconf import DictConfig
 
-from data import CREMADataModule
+from speech_emotion_recognition.classifier import AudioClassifier
+from speech_emotion_recognition.data import CREMADataModule
+from speech_emotion_recognition.model import EmotionSpeechClassifier
 
 
 @hydra.main(config_path="../conf", config_name="config", version_base=None)

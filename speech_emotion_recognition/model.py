@@ -1,7 +1,6 @@
 import lightning as L
 import torch
 from lightning.pytorch.loggers import WandbLogger
-from loss import FocalLoss
 from torchmetrics.classification import (
     MulticlassAccuracy,
     MulticlassConfusionMatrix,
@@ -9,6 +8,7 @@ from torchmetrics.classification import (
 )
 
 import wandb
+from speech_emotion_recognition.loss import FocalLoss
 
 
 class EmotionSpeechClassifier(L.LightningModule):
