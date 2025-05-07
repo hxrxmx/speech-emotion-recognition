@@ -54,7 +54,7 @@ class AudioClassifier(nn.Module):
             nn.BatchNorm1d(64),
             nn.ReLU(),
             nn.Linear(64, num_classes),
-            nn.Softmax(),
+            nn.Softmax(dim=1),
         )
 
     def forward(self, tensor):

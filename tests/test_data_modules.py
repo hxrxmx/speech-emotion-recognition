@@ -1,4 +1,5 @@
 import pytest
+from omegaconf import OmegaConf
 
 from speech_emotion_recognition.data import CREMADataModule
 
@@ -59,13 +60,13 @@ def datamodule(tmp_path):
         },
     }
 
-    dm = CREMADataModule(config=test_config)
+    conf = OmegaConf.create(test_config)
+    dm = CREMADataModule(config=conf)
     dm.setup()
     return dm
 
 
-@pytest.mark.requires_files
-def test_dataloaders(datamodule):
+def test_data_modules(datamodule):
     train_loader = datamodule.train_dataloader()
     batch = next(iter(train_loader))
 
