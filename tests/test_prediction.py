@@ -5,6 +5,7 @@ from speech_emotion_recognition.classifier import AudioClassifier
 
 def test_model_prediction():
     model = AudioClassifier(num_classes=6)
+    model.eval()
     random_input = torch.rand(1, 1, 256, 1024)
 
     pred = model(random_input)

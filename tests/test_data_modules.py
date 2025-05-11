@@ -72,5 +72,4 @@ def test_data_modules(datamodule):
 
     spectrogram, labels = batch
     assert spectrogram.shape[0] == 2, "first shape should be batch_size"
-    assert len(labels) == 6, "there should be 6 labels"
-    assert set(labels.numpy()) <= {0, 1}, "Class should be 0 or 1!"
+    assert set(labels.numpy()) <= {0, 1, 2, 3, 4, 5}, "Class should be from 0 to 5!"

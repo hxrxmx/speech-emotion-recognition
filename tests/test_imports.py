@@ -9,8 +9,10 @@ def test_imports():
         WaveformPreprocessingPipeline,
     )
 
-    CREMADataModule, EmotionSpeechClassifier, AudioClassifier, FocalLoss
-    AudioAugmentationsPipeline, MelSpecPreprocessingPipeline
-    WaveformPreprocessingPipeline
-
-    assert True, "there're issues with imports"
+    assert callable(FocalLoss)
+    assert callable(AudioClassifier)
+    assert callable(EmotionSpeechClassifier)
+    assert callable(CREMADataModule)
+    assert callable(AudioAugmentationsPipeline)
+    assert callable(MelSpecPreprocessingPipeline)
+    assert callable(WaveformPreprocessingPipeline)
