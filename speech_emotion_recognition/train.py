@@ -28,7 +28,7 @@ def main(config: DictConfig):
 
     callbacks = [
         ModelCheckpoint(
-            dirpath="checkpoints/cnn_with_transformer_enc/",
+            dirpath="../models/",
             monitor="val_acc",
             mode="max",
             save_top_k=3,

@@ -1,1 +1,3 @@
-/model-epoch=60-val_loss=0.5905-val_acc=0.693.ckpt
+/model-epoch=90-val_loss=0.8091-val_acc=0.658.ckpt
+
+/*.ckpt
