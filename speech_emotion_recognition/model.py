@@ -1,5 +1,6 @@
 import lightning as L
 import torch
+import wandb
 from lightning.pytorch.loggers import WandbLogger
 from torchmetrics.classification import (
     MulticlassAccuracy,
@@ -7,7 +8,6 @@ from torchmetrics.classification import (
     MulticlassF1Score,
 )
 
-import wandb
 from speech_emotion_recognition.loss import FocalLoss
 
 
