@@ -16,14 +16,17 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install pytest pytest-cov torch \
+          pip install pytest pytest-cov torch wandb \
             torchaudio torch_audiomentations lightning omegaconf
 
       - name: Run Pytest
         env:
           PYTHONPATH: ${{ github.workspace }}
         run: |
-          pytest tests/ --cov=speech_emotion_recognition -v
+          pytest tests/ \
+            --cov=speech_emotion_recognition \
+            -m "not requires_files" \
+            -v
 
       - name: Coverage
         uses: codecov/codecov-action@v3

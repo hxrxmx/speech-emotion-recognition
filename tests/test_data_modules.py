@@ -66,6 +66,7 @@ def datamodule(tmp_path):
     return dm
 
 
+@pytest.mark.requires_files
 def test_data_modules(datamodule):
     train_loader = datamodule.train_dataloader()
     batch = next(iter(train_loader))
