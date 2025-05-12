@@ -16,8 +16,8 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install poetry pytest pytest-cov
-          poetry install
+          pip install pytest pytest-cov torch \
+            torchaudio torch_audiomentations lightning omegaconf
 
       - name: Run Pytest
         env:
