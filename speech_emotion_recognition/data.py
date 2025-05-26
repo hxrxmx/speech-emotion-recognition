@@ -1,4 +1,4 @@
-import os
+from pathlib import Path
 
 import lightning as pl
 import torchaudio
@@ -16,16 +16,16 @@ from speech_emotion_recognition.preprocessing import (
 class CREMADataset(Dataset):
     def __init__(self, data_dir, transform=None):
         super().__init__()
-        self.data_dir = data_dir
+        self.data_dir = Path(data_dir)
         self.transform = transform
 
-        self.classes = sorted(os.listdir(data_dir))
+        self.classes = sorted([file.name for file in self.data_dir.iterdir()])
         self.cls_to_idx = {cls: i for i, cls in enumerate(self.classes)}
 
         self.samples = [
-            (os.path.join(data_dir, cls, file), self.cls_to_idx[cls])
-            for cls in self.classes
-            for file in os.listdir(os.path.join(data_dir, cls))
+            (file, self.cls_to_idx[cls.name])
+            for cls in self.data_dir.iterdir()
+            for file in cls.glob("*")
         ]
 
     def __len__(self):
