@@ -1,22 +1,21 @@
-import os
+from pathlib import Path
 
 import hydra
 from omegaconf import OmegaConf
 
-conf_path = "../conf/"
-conf_name = "config"
-
-model_conf_path = "./conf/model"
+model_conf_path = Path("../conf/model")
 model_conf_name = "model"
 
 
-@hydra.main(config_path=conf_path, config_name=conf_name, version_base=None)
+@hydra.main(config_path="../conf/", config_name="config", version_base=None)
 def main(config):
-    ds_path = config.data.data_loading.train_data_path
+    ds_path = Path(config.data.data_loading.train_data_path)
 
-    cls_to_count = {}
-    for dir_name in os.listdir(ds_path):
-        cls_to_count[dir_name] = len(os.listdir(os.path.join(ds_path, dir_name)))
+    cls_to_count = {
+        class_dir.name: len(list(class_dir.iterdir()))
+        for class_dir in ds_path.iterdir()
+        if class_dir.is_dir()
+    }
 
     sum_items = sum(cls_to_count.values())
 
@@ -26,7 +25,10 @@ def main(config):
     for cls, freq in cls_to_freq.items():
         config.model.weights[cls] = 1 / freq
 
-    OmegaConf.save(config.model, f"{model_conf_path}/{model_conf_name}.yaml")
+    model_conf_path.mkdir(parents=True, exist_ok=True)
+    OmegaConf.save(config.model, model_conf_path / f"{model_conf_name}.yaml")
+
+    print("success")
 
 
 if __name__ == "__main__":
