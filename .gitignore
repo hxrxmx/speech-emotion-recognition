@@ -114,8 +114,6 @@ __pypackages__/
 
 *.ipynb
 
-wandb/
-
 # checkpoints
 checkpoints/
 
