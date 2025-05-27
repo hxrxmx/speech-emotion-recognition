@@ -16,7 +16,7 @@ def main(config: DictConfig):
         model=AudioClassifier(config.model.num_classes),
         config=config,
     )
-    trainer = L.Trainer(accelerator="auto", devices="auto")
+    trainer = L.Trainer(accelerator="auto", devices="auto", logger=False)
 
     trainer.test(model, datamodule=dm)
 
