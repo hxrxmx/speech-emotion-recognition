@@ -26,8 +26,14 @@ class EmotionSpeechClassifier(L.LightningModule):
         self.f1 = MulticlassF1Score(config.model.num_classes)
         self.conf_mat = MulticlassConfusionMatrix(config.model.num_classes)
 
+        self._memory_data_setup()
+
+    def _memory_data_setup(self):
         self.val_preds = []
         self.val_targets = []
+
+        self.test_preds = []
+        self.test_targets = []
 
     def forward(self, tensor):
         return self.model(tensor)
@@ -64,63 +70,65 @@ class EmotionSpeechClassifier(L.LightningModule):
 
     def validation_step(self, batch, batch_idx, dataloader_idx=0):
         data, targets = batch
-        predictions_logits = self(data)
+        predictions = self(data)
 
-        loss = self.loss(predictions_logits, targets)
-        acc = self.acc(predictions_logits, targets)
-        f1 = self.f1(predictions_logits, targets)
-
-        self.log("val_loss", loss, on_step=False, on_epoch=True, prog_bar=True)
-        self.log("val_acc", acc, on_step=False, on_epoch=True, prog_bar=True)
-        self.log("val_f1", f1, on_step=False, on_epoch=True, prog_bar=True)
-
-        preds = predictions_logits.argmax(dim=1)
-        self.val_preds.append(preds)
+        self.val_preds.append(predictions)
         self.val_targets.append(targets)
 
-        return {
-            "val_loss": loss,
-            "val_acc": acc,
-            "val_f1": f1,
-        }
+    def test_step(self, batch, batch_idx, dataloader_idx=0):
+        data, targets = batch
+        predictions = self(data)
+
+        self.test_preds.append(predictions)
+        self.test_targets.append(targets)
 
     def on_validation_epoch_end(self):
-        all_preds = torch.cat(self.val_preds).cpu().numpy()
-        all_targets = torch.cat(self.val_targets).cpu().numpy()
+        all_preds = torch.cat(self.val_preds)
+        all_targets = torch.cat(self.val_targets)
 
         class_labels = [str(i) for i in range(self.config.model.num_classes)]
+
+        loss = self.loss(all_preds, all_targets)
+        acc = self.acc(all_preds, all_targets)
+        f1 = self.f1(all_preds, all_targets)
+
+        self.log("val_loss", loss, on_epoch=True, prog_bar=True)
+        self.log("val_acc", acc, on_epoch=True, prog_bar=True)
+        self.log("val_f1", f1, on_epoch=True, prog_bar=True)
+
+        all_labels = all_preds.argmax(dim=1)
 
         if isinstance(self.logger, WandbLogger):
             self.logger.experiment.log(
                 {
                     "val_conf_mat": wandb.plot.confusion_matrix(
-                        preds=all_preds, y_true=all_targets, class_names=class_labels
-                    ),
+                        preds=all_labels.cpu().numpy(),
+                        y_true=all_targets.cpu().numpy(),
+                        class_names=class_labels,
+                    )
                 }
             )
 
         self.val_preds.clear()
         self.val_targets.clear()
 
-    def test_step(self, batch, batch_idx, dataloader_idx=0):
-        data, targets = batch
-        predictions = self(data)
+    def on_test_epoch_end(self, outputs=None):
+        all_preds = torch.cat(self.test_preds)
+        all_targets = torch.cat(self.test_targets)
 
-        loss = self.loss(predictions, targets)
-        acc = self.acc(predictions, targets)
-        f1 = self.f1(predictions, targets)
+        acc = self.acc(all_preds, all_targets)
+        f1 = self.f1(all_preds, all_targets)
+        loss = self.loss(all_preds, all_targets)
 
+        self.log("test_loss", loss)
         self.log("test_acc", acc)
         self.log("test_f1", f1)
-        self.log("test_loss", loss)
-        return {
-            "test_loss": loss,
-            "test_acc": acc,
-            "test_f1": f1,
-        }
+
+        self.test_preds.clear()
+        self.test_targets.clear()
 
     def predict_step(self, batch, batch_idx, dataloader_idx=0):
-        data, _ = batch
+        data = batch
         predictions = self(data)
 
         return torch.argmax(predictions, dim=1)

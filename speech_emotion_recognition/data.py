@@ -112,19 +112,21 @@ class CREMADataModule(pl.LightningDataModule):
             mel_spec_transform,
         )
 
-    def setup(self, stage=None):
-        self.train_dataset = CREMADataset(
-            data_dir=self.config.data.data_loading.train_data_path,
-            transform=self.train_transform,
-        )
-        self.val_dataset = CREMADataset(
-            data_dir=self.config.data.data_loading.val_data_path,
-            transform=self.val_transform,
-        )
-        self.test_dataset = CREMADataset(
-            data_dir=self.config.data.data_loading.test_data_path,
-            transform=self.test_transform,
-        )
+    def setup(self, stage):
+        if stage == "fit":
+            self.train_dataset = CREMADataset(
+                data_dir=self.config.data.data_loading.train_data_path,
+                transform=self.train_transform,
+            )
+            self.val_dataset = CREMADataset(
+                data_dir=self.config.data.data_loading.val_data_path,
+                transform=self.val_transform,
+            )
+        elif stage == "test":
+            self.test_dataset = CREMADataset(
+                data_dir=self.config.data.data_loading.test_data_path,
+                transform=self.test_transform,
+            )
 
     def train_dataloader(self):
         return DataLoader(
@@ -139,7 +141,7 @@ class CREMADataModule(pl.LightningDataModule):
         return DataLoader(
             self.val_dataset,
             batch_size=self.config.training.batch_size,
-            shuffle=True,
+            shuffle=False,
             num_workers=self.config.training.num_workers,
             persistent_workers=True,
         )
@@ -148,7 +150,7 @@ class CREMADataModule(pl.LightningDataModule):
         return DataLoader(
             self.test_dataset,
             batch_size=self.config.training.batch_size,
-            shuffle=True,
+            shuffle=False,
             num_workers=self.config.training.num_workers,
             persistent_workers=True,
         )

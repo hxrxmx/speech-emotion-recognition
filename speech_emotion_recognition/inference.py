@@ -1,25 +1,39 @@
-import hydra
+import fire
 import lightning as L
-from omegaconf import DictConfig
+import torch
+from hydra import compose, initialize
 
 from speech_emotion_recognition.classifier import AudioClassifier
-from speech_emotion_recognition.data import CREMADataModule
+from speech_emotion_recognition.inference_data import AudioPredictDataModule
 from speech_emotion_recognition.model import EmotionSpeechClassifier
 
 
-@hydra.main(config_path="../conf", config_name="config", version_base=None)
-def main(config: DictConfig):
-    dm = CREMADataModule(config)
+def predict(
+    paths: str,
+    ckpt_path: str = None,
+    config_path: str = "../conf",
+    config_name: str = "config",
+):
+    with initialize(config_path=config_path, version_base=None):
+        config = compose(config_name=config_name)
+    if ckpt_path:
+        config.inference.ckpt_path = ckpt_path
 
     model = EmotionSpeechClassifier.load_from_checkpoint(
         config.inference.ckpt_path,
         model=AudioClassifier(config.model.num_classes),
         config=config,
     )
-    trainer = L.Trainer(accelerator="auto", devices="auto", logger=False)
+    model.eval()
 
-    trainer.test(model, datamodule=dm)
+    dm = AudioPredictDataModule(config, paths.split())
+
+    trainer = L.Trainer(accelerator="auto", devices="auto", logger=False)
+    pred = trainer.predict(model, datamodule=dm)
+    pred = torch.cat(pred)
+
+    print(f"Predicted classes: {pred.tolist()}")
 
 
 if __name__ == "__main__":
-    main()
+    fire.Fire(predict)
