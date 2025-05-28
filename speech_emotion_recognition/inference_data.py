@@ -24,6 +24,7 @@ class AudioPredictDataset(Dataset):
     def __getitem__(self, index):
         file_path = self.samples[index]
         waveform, sr = torchaudio.load(file_path)
+        waveform = waveform.mean(dim=0, keepdim=True)
 
         if self.transform:
             tensor = self.transform((waveform, sr))
