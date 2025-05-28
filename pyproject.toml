@@ -23,7 +23,6 @@ dependencies = [
     "fire (>=0.7.0,<0.8.0)",
 ]
 
-
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
@@ -31,17 +30,6 @@ build-backend = "poetry.core.masonry.api"
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.5"
 pytest-cov = "^6.1.0"
-
-
-[[tool.poetry.source]]
-name = "torch-cuda"
-url = "https://download.pytorch.org/whl/cu126"
-priority = "explicit"
-
-
-[tool.poetry.dependencies]
-torch = {source = "torch-cuda"}
-torchaudio = {source = "torch-cuda"}
 
 [tool.isort]
 profile = "black"
