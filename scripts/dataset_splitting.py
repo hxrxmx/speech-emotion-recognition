@@ -11,7 +11,7 @@ SPLIT_DIR = Path("../data/CREMA-D-split")
 TRAIN_RATIO = 0.8
 VAL_RATIO = 0.1
 TEST_RATIO = 0.1
-SEED = 17
+SEED = 42
 MIN_SAMPLE_TIME = 0.2
 
 
@@ -30,7 +30,7 @@ def split_dataset():
 
     class_dict = defaultdict(list)
 
-    files = [file for file in DATA_DIR.glob("*.wav") if whole(file)]
+    files = sorted([file for file in DATA_DIR.glob("*.wav") if whole(file)])
     for file in files:
         parts = file.name.split("_")
         class_name = parts[2]

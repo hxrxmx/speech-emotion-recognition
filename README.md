@@ -73,20 +73,18 @@ accuracy и $\sim 0.62$ f1-score на тестовой выборке.
 
 Для начала работы:
 
-1. Клонируйте репозиторий и перейдите в папку проекта:
+1. Установите [Poetry](https://python-poetry.org/docs/):
+
+   ```bash
+   pip install poetry
+   ```
+
+2. Клонируйте репозиторий и перейдите в папку проекта:
 
    ```bash
    git clone https://github.com/hxrxmx/speech-emotion-recognition.git
    cd speech-emotion-recognition
    ```
-
-2. Установите [Poetry](https://python-poetry.org/docs/):
-
-   ```bash
-   curl -sSL https://install.python-poetry.org | python3 -
-   ```
-
-   (на windows можно сделать это, используя команду `pip install poetry`)
 
 3. Создайте окружение и установите зависимости, активируйте окружение:
 
@@ -108,9 +106,9 @@ accuracy и $\sim 0.62$ f1-score на тестовой выборке.
 для использования которого необходима авторизация. Если ранее kaggle api не
 использовался, зарегестрируйтесь на kaggle, перейдите в настройки:
 https://www.kaggle.com/settings, и выберите "Create New Token". Это запустит
-скачивание `kaggle.json` файла, который нужно поместить по пути
-`~/.config/kaggle/`. Далее необходимо запустить скрипт скачивания датасета из
-директории `(root)/scripts/`:
+скачивание `kaggle.json` файла, который нужно поместить по пути `~/.kaggle/`
+(или другому пути, который указан во всплывающем окне). Далее необходимо
+запустить скрипт скачивания датасета из директории `(root)/scripts/`:
 
 ```bash
 python data_download.py
