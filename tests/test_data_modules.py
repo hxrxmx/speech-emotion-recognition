@@ -62,7 +62,7 @@ def datamodule(tmp_path):
 
     conf = OmegaConf.create(test_config)
     dm = CREMADataModule(config=conf)
-    dm.setup()
+    dm.setup("fit")
     return dm
 
 
