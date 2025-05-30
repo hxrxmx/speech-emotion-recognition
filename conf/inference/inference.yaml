@@ -1,1 +1,1 @@
-ckpt_path: ../models/model-epoch=90-val_loss=0.8091-val_acc=0.658.ckpt
+ckpt_path: ../models/model-epoch=78-val_loss=0.7900-val_acc=0.674.ckpt

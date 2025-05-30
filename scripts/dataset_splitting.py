@@ -26,6 +26,10 @@ def is_valid_audio(file_path):
 
 
 def split_dataset():
+    if SPLIT_DIR.exists() and any(SPLIT_DIR.iterdir()):
+        print(f"Директория {SPLIT_DIR} уже существует и не пуста.")
+        return
+
     random.seed(SEED)
 
     class_dict = defaultdict(list)
@@ -65,7 +69,7 @@ def split_dataset():
             f"test files: {len(splits['test'])}",
         )
 
-    print("Dataset splitted:;)")
+    print("Dataset splitted ;)")
 
 
 if __name__ == "__main__":

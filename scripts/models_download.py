@@ -1,8 +1,15 @@
+from pathlib import Path
+
 import requests
 from tqdm import tqdm
 
 
 def download_from_yadisk(public_url, output_path):
+    output_path = Path(output_path)
+    if output_path.exists():
+        print(f"Файл уже существует: {output_path}")
+        return
+
     api_url = "https://cloud-api.yandex.net/v1/disk/public/resources/download"
     params = {"public_key": public_url}
 
@@ -26,6 +33,6 @@ def download_from_yadisk(public_url, output_path):
 
 if __name__ == "__main__":
     download_from_yadisk(
-        "https://disk.yandex.ru/d/IPrxAyV03h70HQ",
-        "../models/model-epoch=90-val_loss=0.8091-val_acc=0.658.ckpt",
+        "https://disk.yandex.ru/d/mzf3S-CDwQssfw",
+        "../models/model-epoch=78-val_loss=0.7900-val_acc=0.674.ckpt",
     )
