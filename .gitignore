@@ -19,10 +19,8 @@ lightning_logs/
 # hydra logs
 outputs/
 
-saved_models/
-
-# jupiter notebooks
-notebooks/
+# notes
+test_commands.txt
 
 # Distribution / packaging
 .Python

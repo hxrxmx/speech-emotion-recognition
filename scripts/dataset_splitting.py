@@ -15,7 +15,7 @@ SEED = 42
 MIN_SAMPLE_TIME = 0.2
 
 
-def whole(file_path):
+def is_valid_audio(file_path):
     waveform, sr = torchaudio.load(file_path)
     duration = waveform.shape[1] / sr
     if duration < MIN_SAMPLE_TIME:
@@ -30,7 +30,7 @@ def split_dataset():
 
     class_dict = defaultdict(list)
 
-    files = sorted([file for file in DATA_DIR.glob("*.wav") if whole(file)])
+    files = sorted([file for file in DATA_DIR.glob("*.wav") if is_valid_audio(file)])
     for file in files:
         parts = file.name.split("_")
         class_name = parts[2]
