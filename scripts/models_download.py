@@ -7,7 +7,7 @@ from tqdm import tqdm
 def download_from_yadisk(public_url, output_path):
     output_path = Path(output_path)
     if output_path.exists():
-        print(f"Файл уже существует: {output_path}")
+        print(f"{output_path} already exists.")
         return
 
     api_url = "https://cloud-api.yandex.net/v1/disk/public/resources/download"

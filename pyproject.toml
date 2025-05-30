@@ -1,12 +1,12 @@
 [project]
 name = "speech-emotion-recognition"
-version = "0.1.0"
+version = "1.0.0"
 description = "Classifier of 1 of 6 emotions in audio segment"
 authors = [
     {name = "IvanZhigalskii"}
 ]
 readme = "README.md"
-requires-python = ">=3.10, <3.12"
+requires-python = ">=3.11,<3.12"
 dependencies = [
     "torch (>=2.6.0,<3.0.0)",
     "torchaudio (>=2.6.0,<3.0.0)",

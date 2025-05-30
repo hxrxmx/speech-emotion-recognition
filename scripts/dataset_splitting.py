@@ -27,7 +27,7 @@ def is_valid_audio(file_path):
 
 def split_dataset():
     if SPLIT_DIR.exists() and any(SPLIT_DIR.iterdir()):
-        print(f"Директория {SPLIT_DIR} уже существует и не пуста.")
+        print(f"{SPLIT_DIR} already exists.")
         return
 
     random.seed(SEED)
