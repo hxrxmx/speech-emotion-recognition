@@ -74,13 +74,9 @@ def convert_model(
         print(f"ONNX saved in {onnx_path}")
 
     if not trt_path.exists():
-        print("Export TorchScript (for TensorRT)...")
-        traced = torch.jit.script(model, model_input)
+        trt_model = torch.jit.script(model)
 
-        test_output = traced(model_input)
-        print(f"Traced model output shape: {test_output.shape}")
-
-        traced.save(trt_path.as_posix())
+        trt_model.save(trt_path.as_posix())
         print(f"TorchScript saved in {trt_path}")
 
 

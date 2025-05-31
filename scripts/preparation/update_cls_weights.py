@@ -3,13 +3,13 @@ from pathlib import Path
 import hydra
 from omegaconf import OmegaConf
 
-MODEL_CONF_PATH = Path("../conf/model")
+MODEL_CONF_PATH = Path("../../conf/model")
 MODEL_CONF_NAME = "model"
 
 
-@hydra.main(config_path="../conf/", config_name="config", version_base=None)
+@hydra.main(config_path="../../conf/", config_name="config", version_base=None)
 def main(config):
-    ds_path = Path(config.data.data_loading.train_data_path)
+    ds_path = Path("..") / config.data.data_loading.train_data_path
 
     cls_to_count = {
         class_dir.name: len(list(class_dir.iterdir()))

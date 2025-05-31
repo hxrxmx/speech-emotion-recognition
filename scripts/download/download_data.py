@@ -13,7 +13,7 @@ def download_data():
         print(f"{DOWNLOAD_PATH} already exists.")
         return
 
-    DOWNLOAD_PATH.parent.mkdir(parents=True)
+    DOWNLOAD_PATH.parent.mkdir(parents=True, exist_ok=True)
 
     api = KaggleApi()
     api.authenticate()

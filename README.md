@@ -116,7 +116,7 @@ accuracy и f1-score на тестовой выборке.
 нужно запустить из директории `(root)/scripts/download/`:
 
 ```bash
-python data_download.py
+python download_data.py
 ```
 
 <details> <summary>Авторизация на kaggle</summary>
@@ -137,7 +137,7 @@ python data_download.py
 запустить скрипт разбиения датасета, а затем записать в конфиг веса для классов:
 
 ```bash
-python dataset_splitting.py
+python split_dataset.py
 python update_cls_weights.py
 ```
 
@@ -158,7 +158,7 @@ python train.py
 и запустите:
 
 ```bash
-python models_download.py
+python download_model.py
 ```
 
 ### Запуск в режиме предсказаний
@@ -291,7 +291,7 @@ pytest tests/
 ├── 📁 scripts/
 │   ├── 📁 download
 │   │   ├── 📄 download_data.py       # скачивание датасета
-│   │   └── 📄 download_models.py     # скачивание предобученной модели
+│   │   └── 📄 download_model.py     # скачивание предобученной модели
 │   ├── 📁 preparation
 │   │   ├── 📄 split_dataset.py       # разделение датасета
 │   │   └── 📄 update_cls_weights.py  # обновление весов классов
