@@ -1,7 +1,7 @@
 import pytest
 from omegaconf import OmegaConf
 
-from speech_emotion_recognition.data import CREMADataModule
+from speech_emotion_recognition.data.data import CREMADataModule
 
 
 @pytest.fixture

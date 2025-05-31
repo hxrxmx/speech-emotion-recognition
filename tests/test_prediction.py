@@ -1,6 +1,6 @@
 import torch
 
-from speech_emotion_recognition.classifier import AudioClassifier
+from speech_emotion_recognition.core.classifier import AudioClassifier
 
 
 def test_model_prediction():
