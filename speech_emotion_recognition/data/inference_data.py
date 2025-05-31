@@ -6,7 +6,7 @@ from torch import nn
 from torch.utils.data import DataLoader, Dataset
 from torchaudio.transforms import MelSpectrogram
 
-from speech_emotion_recognition.preprocessing import (
+from speech_emotion_recognition.data.preprocessing import (
     MelSpecPreprocessingPipeline,
     WaveformPreprocessingPipeline,
 )

@@ -6,8 +6,8 @@ from pathlib import Path
 import torch
 import torchaudio
 
-DATA_DIR = Path("../data/CREMA-D/AudioWAV")
-SPLIT_DIR = Path("../data/CREMA-D-split")
+DATA_DIR = Path("../../data/CREMA-D/AudioWAV")
+SPLIT_DIR = Path("../../data/CREMA-D-split")
 TRAIN_RATIO = 0.8
 VAL_RATIO = 0.1
 TEST_RATIO = 0.1

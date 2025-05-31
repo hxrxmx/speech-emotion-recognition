@@ -3,9 +3,9 @@ import lightning as L
 import torch
 from hydra import compose, initialize
 
-from speech_emotion_recognition.classifier import AudioClassifier
-from speech_emotion_recognition.inference_data import AudioPredictDataModule
-from speech_emotion_recognition.model import EmotionSpeechClassifier
+from speech_emotion_recognition.core.classifier import AudioClassifier
+from speech_emotion_recognition.core.model import EmotionSpeechClassifier
+from speech_emotion_recognition.data.inference_data import AudioPredictDataModule
 
 
 def predict(

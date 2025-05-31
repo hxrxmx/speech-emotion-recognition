@@ -2,9 +2,9 @@ import fire
 import lightning as L
 from hydra import compose, initialize
 
-from speech_emotion_recognition.classifier import AudioClassifier
-from speech_emotion_recognition.data import CREMADataModule
-from speech_emotion_recognition.model import EmotionSpeechClassifier
+from speech_emotion_recognition.core.classifier import AudioClassifier
+from speech_emotion_recognition.core.model import EmotionSpeechClassifier
+from speech_emotion_recognition.data.data import CREMADataModule
 
 
 def test(

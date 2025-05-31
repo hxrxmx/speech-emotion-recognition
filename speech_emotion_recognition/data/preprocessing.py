@@ -22,7 +22,7 @@ class WaveformPreprocessingPipeline(nn.Module):
         current_length = waveform.size(-1)
         if current_length < self.length:
             waveform = F.pad(waveform, (0, self.length - current_length))
-        elif current_length > self.length:
+        else:
             waveform = waveform[..., : self.length]
         return waveform
 

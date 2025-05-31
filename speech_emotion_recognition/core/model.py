@@ -8,7 +8,7 @@ from torchmetrics.classification import (
     MulticlassF1Score,
 )
 
-from speech_emotion_recognition.loss import FocalLoss
+from speech_emotion_recognition.core.loss import FocalLoss
 
 
 class EmotionSpeechClassifier(L.LightningModule):
