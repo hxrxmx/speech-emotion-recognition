@@ -303,11 +303,20 @@ pytest tests/
 │   │   ├── 📄 classifier.py          # torch классификатор спектрограмм
 │   │   ├── 📄 loss.py                # focal loss
 │   │   └── 📄 model.py               # lightning модель
+│   │
 │   ├── 📁 data
+│   │   ├── 📄 augmentations.py       # аугментации
 │   │   ├── 📄 data.py                # lightning датамодули и датасеты
-│   │   ├── 📄 inference_data.py      # lightning датамодули и датасеты для предсказаний
-│   │   └── 📄 preprocessing.py       # препроцессинг и аугментации
-│   ├── 📄 inference.py               # запуск модели в режиме предсказаний
+│   │   └── 📄 preprocessing.py       # препроцессинг
+│   │
+│   ├── 📁 inference
+│   │   ├── 📄 loading.py             # загрузка модели
+│   │   └── 📄 preprocessing.py       # реализация препроцессинга для предсказаний
+│   │
+│   ├── 📁 utils
+│   │   └── 📄 plotting.py            # колбэк с построением графика локально
+│   │
+│   ├── 📄 predict.py                 # запуск модели в режиме предсказаний
 │   ├── 📄 test.py                    # измерение метрик на тестовых данных
 │   └── 📄 train.py                   # обучение модели
 │
