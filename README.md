@@ -338,3 +338,58 @@ pytest tests/
 ├── 📄 pytest.ini
 └── 📄 README.md
 ```
+
+---
+
+<details>
+  <summary><i><b>Project fast testing shortlist</b></i></summary>
+
+```bash
+pip install poetry
+
+# клонировать репо
+git clone https://github.com/hxrxmx/speech-emotion-recognition.git
+cd speech-emotion-recognition
+
+# установить зависимости и активировать окружение
+poetry install
+source $(poetry env info --path)/bin/activate
+
+# скачать данные
+cd scripts/download/
+python download_data.py
+
+# подготовить данные
+cd ../preparation/
+python split_dataset.py
+python update_cls_weights.py
+
+# запустить тренировку
+cd ../../speech_emotion_recognition/
+python train.py
+(choose "3" for offline mode)
+
+# запустить скачивание модели
+cd ../scripts/download/
+python download_model.py
+
+# запустить в режиме предсказаний
+cd ../../speech_emotion_recognition/
+python predict.py --paths="../data/CREMA-D-split/test/HAP/1004_TIE_HAP_XX.wav ../data/CREMA-D-split/test/DIS/1005_IWL_DIS_XX.wav ../data/CREMA-D-split/test/SAD/1006_DFA_SAD_XX.wav" --ckpt_path="../models/model-epoch=78-val_loss=0.7900-val_acc=0.674.ckpt"
+
+# тестировать
+python test.py --ckpt_path="../models/model-epoch=78-val_loss=0.7900-val_acc=0.674.ckpt"
+
+# пакетировать в .onnx и .trt
+cd ../scripts/production_packaging/
+python convert.py --ckpt_path="../../models/model-epoch=78-val_loss=0.7900-val_acc=0.674.ckpt"
+
+# тесты и pre-commit
+cd ../../
+pre-commit install
+pre-commit run -a
+pytest --cov=speech_emotion_recognition tests/
+
+```
+
+</details>
