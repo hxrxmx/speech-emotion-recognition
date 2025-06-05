@@ -284,14 +284,14 @@ pytest tests/
 ├── 📁 .dvc/
 ├── 📁 conf/                          # конфиги hydra
 ├── 📁 data/                          # директория для хранения данных
-│    └── 📁
+│   └── 📁
 ├── 📁 logs/wandb/                    # логи wandb
 ├── 📁 models/                        # сохранённые веса обученных моделей
 │
 ├── 📁 scripts/
 │   ├── 📁 download
 │   │   ├── 📄 download_data.py       # скачивание датасета
-│   │   └── 📄 download_model.py     # скачивание предобученной модели
+│   │   └── 📄 download_model.py      # скачивание предобученной модели
 │   ├── 📁 preparation
 │   │   ├── 📄 split_dataset.py       # разделение датасета
 │   │   └── 📄 update_cls_weights.py  # обновление весов классов

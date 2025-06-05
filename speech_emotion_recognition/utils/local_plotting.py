@@ -53,42 +53,41 @@ class LocalPlot(L.Callback):
                 f"Graphs will be saved to default directory '{self.default_plot_dir}'."
             )
             self.plot_dir = self.default_plot_dir
-            self.plot_dir.mkdir(self.plot_dir, exist_ok=True)
+            self.plot_dir.mkdir(parents=True, exist_ok=True)
 
     def on_train_epoch_end(self, trainer, pl_module):
-        if "train_loss" in trainer.callback_metrics:
-            self.history["train_loss"].append(
-                trainer.callback_metrics["train_loss"].item()
-            )
-        if "train_acc" in trainer.callback_metrics:
-            self.history["train_acc"].append(
-                trainer.callback_metrics["train_acc"].item()
-            )
+        train_loss = trainer.callback_metrics.get("train_loss")
+        train_acc = trainer.callback_metrics.get("train_acc")
+        if train_loss:
+            self.history["train_loss"].append(train_loss)
+        if train_acc:
+            self.history["train_acc"].append(train_acc)
 
     def on_validation_epoch_end(self, trainer, pl_module):
-        if "val_loss" in trainer.callback_metrics:
-            self.history["val_loss"].append(trainer.callback_metrics["val_loss"].item())
-        if "val_acc" in trainer.callback_metrics:
-            self.history["val_acc"].append(trainer.callback_metrics["val_acc"].item())
-        if "val_f1" in trainer.callback_metrics:
-            self.history["val_f1"].append(trainer.callback_metrics["val_f1"].item())
+        val_loss = trainer.callback_metrics.get("val_loss")
+        val_acc = trainer.callback_metrics.get("val_acc")
+        val_f1 = trainer.callback_metrics.get("val_f1")
+        if val_loss:
+            self.history["val_loss"].append(val_loss)
+        if val_acc:
+            self.history["val_acc"].append(val_acc)
+        if val_f1:
+            self.history["val_f1"].append(val_f1)
 
         if not self.history["val_loss"]:
             return
-
-        epochs_range = np.arange(trainer.current_epoch)
 
         for metric_group, metrics_map in self.metrics_to_plot.items():
             fig, ax = plt.subplots(figsize=(10, 6))
 
             for history_key, plot_label in metrics_map.items():
                 if history_key in self.history and self.history[history_key]:
-                    if len(self.history[history_key]) >= trainer.current_epoch:
-                        ax.plot(
-                            epochs_range,
-                            self.history[history_key][: trainer.current_epoch],
-                            label=plot_label,
-                        )
+                    epochs_range = np.arange(len(self.history[history_key]))
+                    ax.plot(
+                        epochs_range,
+                        self.history[history_key],
+                        label=plot_label,
+                    )
 
             ax.set_xlabel("Epoch")
             ax.set_ylabel(metric_group)
@@ -97,8 +96,7 @@ class LocalPlot(L.Callback):
             ax.grid(True)
             plt.tight_layout()
 
-            filename = "metrics.png"
+            filename = f"{metric_group.lower().replace(' ', '_')}.png"
             filepath = self.plot_dir / filename
             plt.savefig(filepath)
-
             plt.close(fig)

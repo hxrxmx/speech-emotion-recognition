@@ -1,5 +1,4 @@
 import fire
-import lightning as L
 import torch
 from hydra import compose, initialize
 
@@ -14,6 +13,8 @@ def predict(
     config_path: str = "../conf",
     config_name: str = "config",
 ):
+    torch.set_float32_matmul_precision("medium")
+
     with initialize(config_path=config_path, version_base=None):
         config = compose(config_name=config_name)
     if ckpt_path:
@@ -26,13 +27,23 @@ def predict(
     )
     model.eval()
 
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    model.to(device)
+
     dm = AudioPredictDataModule(config, paths.split())
+    dm.setup("predict")
+    dataloader = dm.predict_dataloader()
 
-    trainer = L.Trainer(accelerator="auto", devices="auto", logger=False)
-    pred = trainer.predict(model, datamodule=dm)
-    pred = torch.cat(pred)
+    all_preds = []
+    with torch.no_grad():
+        for batch in dataloader:
+            inputs = batch.to(device)
+            logits = model(inputs)
+            preds = torch.argmax(logits, dim=1)
+            all_preds.append(preds.cpu())
 
-    print(f"Predicted classes: {pred.tolist()}")
+    final_preds = torch.cat(all_preds)
+    print(f"Predicted classes: {final_preds.tolist()}")
 
 
 if __name__ == "__main__":
