@@ -7,7 +7,7 @@ from omegaconf import DictConfig
 from speech_emotion_recognition.core.classifier import AudioClassifier
 from speech_emotion_recognition.core.model import EmotionSpeechClassifier
 from speech_emotion_recognition.data.data import CREMADataModule
-from speech_emotion_recognition.utils.local_plotting import LocalPlot
+from speech_emotion_recognition.utils.plotting import LocalPlot
 
 
 @hydra.main(config_path="../conf", config_name="config", version_base=None)
