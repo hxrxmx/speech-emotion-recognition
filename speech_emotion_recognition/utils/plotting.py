@@ -59,20 +59,20 @@ class LocalPlot(L.Callback):
         train_loss = trainer.callback_metrics.get("train_loss")
         train_acc = trainer.callback_metrics.get("train_acc")
         if train_loss:
-            self.history["train_loss"].append(train_loss)
+            self.history["train_loss"].append(train_loss.cpu().item())
         if train_acc:
-            self.history["train_acc"].append(train_acc)
+            self.history["train_acc"].append(train_acc.cpu().item())
 
     def on_validation_epoch_end(self, trainer, pl_module):
         val_loss = trainer.callback_metrics.get("val_loss")
         val_acc = trainer.callback_metrics.get("val_acc")
         val_f1 = trainer.callback_metrics.get("val_f1")
         if val_loss:
-            self.history["val_loss"].append(val_loss)
+            self.history["val_loss"].append(val_loss.cpu().item())
         if val_acc:
-            self.history["val_acc"].append(val_acc)
+            self.history["val_acc"].append(val_acc.cpu().item())
         if val_f1:
-            self.history["val_f1"].append(val_f1)
+            self.history["val_f1"].append(val_f1.cpu().item())
 
         if not self.history["val_loss"]:
             return
