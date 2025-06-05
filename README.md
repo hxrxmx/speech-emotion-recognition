@@ -366,8 +366,7 @@ python update_cls_weights.py
 
 # запустить тренировку
 cd ../../speech_emotion_recognition/
-python train.py
-(choose "3" for offline mode)
+python train.py  # (choose "3" for offline mode)
 
 # запустить скачивание модели
 cd ../scripts/download/
