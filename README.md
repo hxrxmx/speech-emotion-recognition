@@ -150,6 +150,17 @@ python update_cls_weights.py
 python train.py
 ```
 
+### Логгирование
+
+Для отслеживания метрик во время обучения используется wandb. Для его
+использования нужно зарегестрировать аккаунт на сайте [wandb](https://wandb.ai/)
+и создать api key (подробнее на сайте).
+
+Допускаектся отслеживание в оффлайн-режиме. Графики метрик и лосса сохраняются в
+`(root)/logs/wandb/[run-id]/files/plots`. Также данные, логгируемые wandb,
+сохраняются локально. В папке `(root)/logs/wandb/[run-id]/files/media/table`
+сохраняются confusion-матрицы в формате словаря.
+
 ## Inference
 
 ### Загрузка предобученной модели
@@ -166,7 +177,7 @@ python download_model.py
 Перейдите в `(root)/speech_emotion_recognition/` и запустите:
 
 ```bash
-python inference.py --ckpt_path="relative/path/to/model.ckpt" --paths="in quotes relative paths separated by spaces"
+python predict.py --ckpt_path="relative/path/to/model.ckpt" --paths="in quotes relative paths separated by spaces"
 ```
 
 <details>
@@ -174,7 +185,7 @@ python inference.py --ckpt_path="relative/path/to/model.ckpt" --paths="in quotes
   <blockquote>
 
 _По умолчанию (при запуске
-`python inference.py --paths="path1.wav path2.wav ..."`) используется модель,
+`python predict.py --paths="path1.wav path2.wav ..."`) используется модель,
 указанная в hydra-конфиге (`config.inference.ckpt_path`)._
 
 _Допускается запуск с другим конфигом, для этого нужно указать при запуске
@@ -187,7 +198,7 @@ _Допускается запуск с другим конфигом, для э
   <summary><i>Пример запуска</i></summary>
 
 ```bash
-python inference.py --paths="../data/CREMA-D-split/test/HAP/1004_TIE_HAP_XX.wav ../data/CREMA-D-split/test/DIS/1005_IWL_DIS_XX.wav ../data/CREMA-D-split/test/SAD/1006_DFA_SAD_XX.wav" --ckpt_path="../models/model-epoch=78-val_loss=0.7900-val_acc=0.674.ckpt"
+python predict.py --paths="../data/CREMA-D-split/test/HAP/1004_TIE_HAP_XX.wav ../data/CREMA-D-split/test/DIS/1005_IWL_DIS_XX.wav ../data/CREMA-D-split/test/SAD/1006_DFA_SAD_XX.wav" --ckpt_path="../models/model-epoch=78-val_loss=0.7900-val_acc=0.674.ckpt"
 ```
 
 </details>
@@ -284,36 +295,36 @@ pytest tests/
 ├── 📁 .dvc/
 ├── 📁 conf/                          # конфиги hydra
 ├── 📁 data/                          # директория для хранения данных
-│   └── 📁
+│   └── 📁/
 ├── 📁 logs/wandb/                    # логи wandb
 ├── 📁 models/                        # сохранённые веса обученных моделей
 │
 ├── 📁 scripts/
-│   ├── 📁 download
+│   ├── 📁 download/
 │   │   ├── 📄 download_data.py       # скачивание датасета
 │   │   └── 📄 download_model.py      # скачивание предобученной модели
-│   ├── 📁 preparation
+│   ├── 📁 preparation/
 │   │   ├── 📄 split_dataset.py       # разделение датасета
 │   │   └── 📄 update_cls_weights.py  # обновление весов классов
-│   └── 📁 production_packaging
+│   └── 📁 production_packaging/
 │       └── 📄 convert.py             # сохранение весов модели в .onnx и .pth
 │
 ├── 📁 speech_emotion_recognition/
-│   ├── 📁 core
+│   ├── 📁 core/
 │   │   ├── 📄 classifier.py          # torch классификатор спектрограмм
 │   │   ├── 📄 loss.py                # focal loss
 │   │   └── 📄 model.py               # lightning модель
 │   │
-│   ├── 📁 data
+│   ├── 📁 data/
 │   │   ├── 📄 augmentations.py       # аугментации
 │   │   ├── 📄 data.py                # lightning датамодули и датасеты
 │   │   └── 📄 preprocessing.py       # препроцессинг
 │   │
-│   ├── 📁 inference
+│   ├── 📁 inference/
 │   │   ├── 📄 loading.py             # загрузка модели
 │   │   └── 📄 preprocessing.py       # реализация препроцессинга для предсказаний
 │   │
-│   ├── 📁 utils
+│   ├── 📁 utils/
 │   │   └── 📄 plotting.py            # колбэк с построением графика локально
 │   │
 │   ├── 📄 predict.py                 # запуск модели в режиме предсказаний
