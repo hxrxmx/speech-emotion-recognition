@@ -16,7 +16,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install pytest pytest-cov torch wandb \
+          pip install pytest pytest-cov torch wandb matplotlib\
             torchaudio torch_audiomentations lightning omegaconf
 
       - name: Run Pytest
